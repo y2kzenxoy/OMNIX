@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "OMNIX — Most Powerful iPad AI Agent"
+version = "1.0.0"
+id = "artifacts/omnix"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19135
+
+[services.development]
+run = "pnpm --filter @workspace/omnix run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/omnix", "run", "build" ]
+publicDir = "artifacts/omnix/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19135"
+BASE_PATH = "/"
