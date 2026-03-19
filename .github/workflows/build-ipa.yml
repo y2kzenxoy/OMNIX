@@ -11,50 +11,91 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts || true
-
-      - name: Create dist folder with app
+      - name: Setup clean project
         run: |
-          mkdir -p dist
-          # Copy built files if they exist
-          cp -r attached_assets/* dist/ 2>/dev/null || true
-          cp -r artifacts/ipad-agent/* dist/ 2>/dev/null || true
-          # If dist still empty, create minimal index
-          if [ ! -f dist/index.html ]; then
-            echo '<html><head><meta name="viewport" content="width=device-width"/></head><body><div id="root"></div><script src="app.js"></script></body></html>' > dist/index.html
-          fi
-          ls -la dist/
+          mkdir -p /tmp/omnix/src /tmp/omnix/public
 
-      - name: Install Capacitor
-        run: |
-          npm install -g @capacitor/cli
-          pnpm add @capacitor/core @capacitor/ios 2>/dev/null || npm install @capacitor/core @capacitor/ios
-
-      - name: Setup Capacitor config
-        run: |
-          cat > capacitor.config.json << 'EOF'
+          # Create package.json
+          cat > /tmp/omnix/package.json << 'EOF'
           {
-            "appId": "com.omnix.agent",
-            "appName": "OMNIX",
-            "webDir": "dist",
-            "ios": { "scheme": "OMNIX" }
+            "name": "omnix",
+            "version": "1.0.0",
+            "private": true,
+            "dependencies": {
+              "react": "^18.2.0",
+              "react-dom": "^18.2.0",
+              "react-scripts": "5.0.1",
+              "@capacitor/core": "^5.0.0",
+              "@capacitor/ios": "^5.0.0"
+            },
+            "scripts": { "build": "react-scripts build" },
+            "browserslist": { "production": [">0.2%"] }
           }
           EOF
 
-      - name: Add iOS
-        run: npx cap add ios || true
+          # Create index.html
+          cat > /tmp/omnix/public/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8"/>
+              <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+              <meta name="apple-mobile-web-app-capable" content="yes"/>
+              <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+              <title>OMNIX</title>
+              <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#e2e8f0}</style>
+            </head>
+            <body><div id="root"></div></body>
+          </html>
+          EOF
 
-      - name: Sync Capacitor
-        run: npx cap sync ios
+          # Create index.js
+          cat > /tmp/omnix/src/index.js << 'EOF'
+          import React from 'react';
+          import ReactDOM from 'react-dom/client';
+          import App from './App';
+          ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+          EOF
+
+          # Copy OMNIX app file if it exists
+          if [ -f src/App.jsx ]; then
+            cp src/App.jsx /tmp/omnix/src/App.jsx
+          elif [ -f src/App.js ]; then
+            cp src/App.js /tmp/omnix/src/App.jsx
+          else
+            echo "App file not found, searching..."
+            find . -name "App.jsx" -o -name "App.js" | head -1 | xargs -I{} cp {} /tmp/omnix/src/App.jsx
+          fi
+
+          # Capacitor config
+          cat > /tmp/omnix/capacitor.config.json << 'EOF'
+          {
+            "appId": "com.omnix.agent",
+            "appName": "OMNIX",
+            "webDir": "build",
+            "ios": { "scheme": "OMNIX", "backgroundColor": "#000000" }
+          }
+          EOF
+
+      - name: Build React app
+        working-directory: /tmp/omnix
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Setup Capacitor
+        working-directory: /tmp/omnix
+        run: |
+          npm install -g @capacitor/cli
+          npx cap add ios || true
+          npx cap sync ios
 
       - name: Pod install
+        working-directory: /tmp/omnix
         run: cd ios/App && pod install
 
       - name: Build IPA
+        working-directory: /tmp/omnix
         run: |
           xcodebuild \
             -workspace ios/App/App.xcworkspace \
@@ -74,5 +115,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: OMNIX-IPA
-          path: build/IPA/OMNIX.ipa
+          path: /tmp/omnix/build/IPA/OMNIX.ipa
           retention-days: 30
