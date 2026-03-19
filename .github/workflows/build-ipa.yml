@@ -11,30 +11,40 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup clean project
+      - name: Setup clean Vite project
         run: |
           mkdir -p /tmp/omnix/src /tmp/omnix/public
 
-          # Create package.json
           cat > /tmp/omnix/package.json << 'EOF'
           {
             "name": "omnix",
             "version": "1.0.0",
             "private": true,
+            "type": "module",
+            "scripts": { "build": "vite build" },
             "dependencies": {
               "react": "^18.2.0",
               "react-dom": "^18.2.0",
-              "react-scripts": "5.0.1",
               "@capacitor/core": "^5.0.0",
               "@capacitor/ios": "^5.0.0"
             },
-            "scripts": { "build": "react-scripts build" },
-            "browserslist": { "production": [">0.2%"] }
+            "devDependencies": {
+              "vite": "^5.0.0",
+              "@vitejs/plugin-react": "^4.0.0"
+            }
           }
           EOF
 
-          # Create index.html
-          cat > /tmp/omnix/public/index.html << 'EOF'
+          cat > /tmp/omnix/vite.config.js << 'EOF'
+          import { defineConfig } from 'vite'
+          import react from '@vitejs/plugin-react'
+          export default defineConfig({
+            plugins: [react()],
+            build: { outDir: 'dist' }
+          })
+          EOF
+
+          cat > /tmp/omnix/index.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -45,42 +55,40 @@ jobs:
               <title>OMNIX</title>
               <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#e2e8f0}</style>
             </head>
-            <body><div id="root"></div></body>
+            <body>
+              <div id="root"></div>
+              <script type="module" src="/src/main.jsx"></script>
+            </body>
           </html>
           EOF
 
-          # Create index.js
-          cat > /tmp/omnix/src/index.js << 'EOF'
-          import React from 'react';
-          import ReactDOM from 'react-dom/client';
-          import App from './App';
-          ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+          cat > /tmp/omnix/src/main.jsx << 'EOF'
+          import React from 'react'
+          import ReactDOM from 'react-dom/client'
+          import App from './App'
+          ReactDOM.createRoot(document.getElementById('root')).render(<App/>)
           EOF
 
-          # Copy OMNIX app file if it exists
+          # Copy App file
           if [ -f src/App.jsx ]; then
             cp src/App.jsx /tmp/omnix/src/App.jsx
-          elif [ -f src/App.js ]; then
-            cp src/App.js /tmp/omnix/src/App.jsx
           else
-            echo "App file not found, searching..."
-            find . -name "App.jsx" -o -name "App.js" | head -1 | xargs -I{} cp {} /tmp/omnix/src/App.jsx
+            find . -name "App.jsx" | head -1 | xargs -I{} cp {} /tmp/omnix/src/App.jsx 2>/dev/null || true
           fi
 
-          # Capacitor config
           cat > /tmp/omnix/capacitor.config.json << 'EOF'
           {
             "appId": "com.omnix.agent",
             "appName": "OMNIX",
-            "webDir": "build",
+            "webDir": "dist",
             "ios": { "scheme": "OMNIX", "backgroundColor": "#000000" }
           }
           EOF
 
-      - name: Build React app
+      - name: Build with Vite
         working-directory: /tmp/omnix
         run: |
-          npm install --legacy-peer-deps
+          npm install
           npm run build
 
       - name: Setup Capacitor
