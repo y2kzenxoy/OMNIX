@@ -1,0 +1,226 @@
+Do not touch any backend code, API calls, or functionality.
+Only redesign the entire UI/frontend.
+Keep all existing state, functions, and logic identical.
+Fix all errors automatically. Do not stop. Do not ask questions.
+
+REDESIGN THE UI TO MATCH THIS EXACT VISION:
+
+═══════════════════════════════════════
+OVERALL AESTHETIC
+═══════════════════════════════════════
+- Name: OMNIX
+- Theme: Ultra dark, premium, futuristic — like a military AI command center
+- Primary color: Electric cyan #00f5ff with neon glow effects
+- Secondary: Deep purple #7000ff
+- Accent: Hot pink #ff006e for gaming mode
+- Background: Pure #000000 with subtle grid pattern overlay
+- All panels: #050505 with 1px borders that glow on hover
+- Font: JetBrains Mono or SF Mono throughout — monospace everywhere
+- Glow effects on every active element using box-shadow
+- Subtle scanline texture on background
+- Every button should pulse or glow when active
+- No rounded corners bigger than 8px — sharp and angular
+- Feels like Iron Man HUD meets Discord meets military software
+
+═══════════════════════════════════════
+HEADER
+═══════════════════════════════════════
+- Full width top bar
+- Left: OMNIX logo with electric cyan glow and animated pulse
+- Center: Show active agent name and which AI model is responding
+- Right: Connection status dots for each AI (Groq, Gemini, Ollama)
+- Green dot = connected, red = offline
+- Gaming mode indicator that pulses pink when on
+- Memory count badge
+- Settings gear button
+
+═══════════════════════════════════════
+TAB BAR
+═══════════════════════════════════════
+- Bottom tab bar (iPad friendly)
+- Tabs: Chat, Agents, Build, Code, Files, Camera, Gaming, Perms, Memory, Terminal
+- Active tab has neon cyan underline and glows
+- Icons are large (20px) with labels
+- Tab bar background is #000 with top border that glows cyan
+
+═══════════════════════════════════════
+CHAT TAB
+═══════════════════════════════════════
+- Full height message list
+- User messages: right side, dark blue background, cyan border
+- Agent messages: left side, #050505 background, colored border matching agent color
+- Each message shows: agent icon + name badge, timestamp, model used
+- Thinking animation: 4 dots that pulse in sequence with glow
+- Agent selector: horizontal scroll bar at top showing all 8 agents as icon pills
+- Active agent pill glows with its color
+- Input bar pinned to bottom:
+  - Dark input field with cyan border on focus
+  - Mic button (glows when recording)
+  - Send button: gradient cyan to purple, glows on hover
+  - Show current agent name above input
+
+═══════════════════════════════════════
+AGENTS TAB
+═══════════════════════════════════════
+- Grid layout 2 columns on iPad
+- Each agent card:
+  - Large icon (40px)
+  - Agent name in bold
+  - Description
+  - Model badge
+  - Colored border matching agent color with glow
+  - Tap to activate and switch to chat
+  - Show "ACTIVE" badge if currently selected
+- Cards animate on press
+
+═══════════════════════════════════════
+BUILD TAB
+═══════════════════════════════════════
+- Pipeline diagram at top showing all 8 agents as connected nodes
+- Animated flow line between nodes when pipeline is running
+- Large textarea for build goal
+- Templates as horizontal scrollable chips
+- LAUNCH button: full width, animated gradient, pulses when idle
+- Live log: terminal style, each agent step colored with its agent color
+- Progress bar showing which step is active
+
+═══════════════════════════════════════
+CODE TAB
+═══════════════════════════════════════
+- Full screen code editor
+- Syntax highlighting colors matching the dark theme
+- Toolbar: language selector + action buttons (Pipeline, Debug, DevGod, Audit, Optimise, Save)
+- Line numbers on left
+- Cursor position shown at bottom
+- File name shown at top
+
+═══════════════════════════════════════
+GAMING TAB
+═══════════════════════════════════════
+- When gaming mode OFF: show toggle to activate
+- When gaming mode ON:
+  - Theme switches to hot pink/red gaming aesthetic
+  - Live stats grid: FPS, PING, CPU, GPU, RAM, TEMP
+  - Each stat card has a mini bar chart animation
+  - Preset buttons: Max Performance, Balanced, Battery, Competitive, Streaming
+  - Active preset glows pink
+  - HUD toggle: show/hide floating overlay
+  - Customization: checkboxes for each stat, opacity slider, theme picker
+  - GameAI quick commands as neon pink chips
+  - Recent AI responses shown in dark cards
+
+═══════════════════════════════════════
+FILES TAB
+═══════════════════════════════════════
+- Left sidebar: file tree with icons per file type
+- Right: file editor with syntax highlighting
+- Top toolbar: file name, Analyse button, Improve button, Save button
+- New file button with + icon
+- Upload button
+- Empty state: "Select or create a file" with icon
+
+═══════════════════════════════════════
+CAMERA TAB
+═══════════════════════════════════════
+- Full width camera preview with rounded border that glows
+- Flip camera button top right
+- Filter buttons: Normal, Greyscale, Vivid
+- Large capture button: glowing circle at bottom center
+- Photo strip below showing last 10 captures
+- Tap photo to re-analyse with AI
+
+═══════════════════════════════════════
+PERMISSIONS TAB
+═══════════════════════════════════════
+- List of all permissions with large icons
+- Each row: icon, name, description, status dot, request button
+- Granted = green glow, Denied = red, Not asked = grey
+- "Request All" button at top
+- Status summary at bottom
+
+═══════════════════════════════════════
+MEMORY TAB
+═══════════════════════════════════════
+- Header showing count and clear button
+- Add memory input + button
+- Memory cards in reverse chronological order
+- Each card: Q in cyan, A in grey, timestamp
+- Delete button on each card
+- Search memories input at top
+
+═══════════════════════════════════════
+TERMINAL TAB
+═══════════════════════════════════════
+- Pure black background
+- Cyan prompt character ⚡
+- Command output in different colors per type:
+  - Commands: cyan
+  - Success: green
+  - Errors: red
+  - AI responses: purple
+- Command history with arrow keys
+- Autocomplete suggestions
+
+═══════════════════════════════════════
+FLOATING GAMING HUD
+═══════════════════════════════════════
+- Small Discord-style bubble in corner
+- Draggable anywhere on screen
+- Bubble mode: shows FPS + Ping + CPU in one line with colored values
+- Expanded mode:
+  - Stats grid 3x2
+  - CPU and GPU progress bars
+  - Quick AI command chips
+  - AI input + send button
+  - Last 3 AI responses
+  - Preset quick switch
+- Smooth expand/collapse animation
+- Hot pink border with glow in gaming mode
+
+═══════════════════════════════════════
+ANIMATIONS & MICRO-INTERACTIONS
+═══════════════════════════════════════
+- Page load: staggered fade-in for all elements
+- Button press: scale down 0.96 then back
+- Tab switch: smooth fade transition
+- New message: slide up from bottom
+- Pipeline running: animated dashes between nodes
+- Gaming mode toggle: color theme transition over 0.5s
+- HUD expand: smooth height animation
+- Agent thinking: pulsing dots with glow
+
+═══════════════════════════════════════
+SETTINGS PANEL
+═══════════════════════════════════════
+- Slides down from header
+- Dark cards for each setting group
+- API key inputs with password toggle show/hide
+- Test Connection button that shows live status
+- Color coded: Groq=cyan, Gemini=green, Ollama=teal
+- Save & Close button
+
+═══════════════════════════════════════
+IPAD SPECIFIC
+═══════════════════════════════════════
+- All touch targets minimum 44px
+- No hover-only interactions
+- Keyboard does not cover input
+- Works landscape and portrait
+- Safe area insets respected
+- Smooth 60fps animations
+- No text smaller than 11px
+
+═══════════════════════════════════════
+KEEP EVERYTHING ELSE
+═══════════════════════════════════════
+- All API calls unchanged
+- All state unchanged
+- All agent logic unchanged
+- All file handling unchanged
+- All camera logic unchanged
+- All gaming logic unchanged
+- Only change CSS/JSX structure and styling
+
+START NOW. Do it automatically.
+Fix all errors. Do not stop.
+When done say: OMNIX UI COMPLETE
