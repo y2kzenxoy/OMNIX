@@ -11,12 +11,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
-      - run: npm run build
-      - run: npm install -g @capacitor/cli
-      - run: npx cap add ios || true
-      - run: npx cap sync ios
-      - run: cd ios/App && pod install
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build app
+        run: pnpm run build
+      - name: Install Capacitor
+        run: pnpm install -g @capacitor/cli
+      - name: Add iOS
+        run: npx cap add ios || true
+      - name: Sync Capacitor
+        run: npx cap sync ios
+      - name: Pod install
+        run: cd ios/App && pod install
       - name: Build IPA
         run: |
           xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/App.xcarchive archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO
