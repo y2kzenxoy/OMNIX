@@ -1,0 +1,30 @@
+name: Build OMNIX IPA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npm run build
+      - run: npm install -g @capacitor/cli
+      - run: npx cap add ios || true
+      - run: npx cap sync ios
+      - run: cd ios/App && pod install
+      - name: Build IPA
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/App.xcarchive archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO
+          mkdir -p build/IPA/Payload
+          cp -r build/App.xcarchive/Products/Applications/App.app build/IPA/Payload/
+          cd build/IPA && zip -r OMNIX.ipa Payload/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OMNIX-IPA
+          path: build/IPA/OMNIX.ipa
+          retention-days: 30
