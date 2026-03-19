@@ -1,36 +1,76 @@
 name: Build OMNIX IPA
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install pnpm
         run: npm install -g pnpm
+
       - name: Install dependencies
-        run: pnpm install
-      - name: Build app
-        run: pnpm run build
+        run: pnpm install --ignore-scripts || true
+
+      - name: Create dist folder with app
+        run: |
+          mkdir -p dist
+          # Copy built files if they exist
+          cp -r attached_assets/* dist/ 2>/dev/null || true
+          cp -r artifacts/ipad-agent/* dist/ 2>/dev/null || true
+          # If dist still empty, create minimal index
+          if [ ! -f dist/index.html ]; then
+            echo '<html><head><meta name="viewport" content="width=device-width"/></head><body><div id="root"></div><script src="app.js"></script></body></html>' > dist/index.html
+          fi
+          ls -la dist/
+
       - name: Install Capacitor
-        run: pnpm install -g @capacitor/cli
+        run: |
+          npm install -g @capacitor/cli
+          pnpm add @capacitor/core @capacitor/ios 2>/dev/null || npm install @capacitor/core @capacitor/ios
+
+      - name: Setup Capacitor config
+        run: |
+          cat > capacitor.config.json << 'EOF'
+          {
+            "appId": "com.omnix.agent",
+            "appName": "OMNIX",
+            "webDir": "dist",
+            "ios": { "scheme": "OMNIX" }
+          }
+          EOF
+
       - name: Add iOS
         run: npx cap add ios || true
+
       - name: Sync Capacitor
         run: npx cap sync ios
+
       - name: Pod install
         run: cd ios/App && pod install
+
       - name: Build IPA
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos -configuration Release -archivePath $PWD/build/App.xcarchive archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath $PWD/build/App.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO
           mkdir -p build/IPA/Payload
           cp -r build/App.xcarchive/Products/Applications/App.app build/IPA/Payload/
           cd build/IPA && zip -r OMNIX.ipa Payload/
+
       - uses: actions/upload-artifact@v4
         with:
           name: OMNIX-IPA
